@@ -2,68 +2,63 @@
 
 class Paginacao{
 
-    private $total_registros;
-    private $total_pagina;
+    private static $total_registros;
+    private static $total_pagina;
   
-    function getTotalRegistros(){
-       return $this->total_registros;
+    static function getTotalRegistros(){
+       return self::$total_registros;
     }
-    function setTotalRegistros($total_registros){
-        $this->total_registros = $total_registros;
+    static function setTotalRegistros($total_registros){
+        self::$total_registros = $total_registros;
     }
-    function getTotalPaginaNavegacao(){
-        return $this->total_pagina;
-     }
-     function setTotalPaginaNavegacao($total_registros, $registrosPorPagina){
-        $this->total_pagina = ceil($total_registros / $registrosPorPagina);
-     }
+    static function getTotalPaginaNavegacao(){
+        return self::$total_pagina;
+    }
+    static function setTotalPaginaNavegacao($total_registros, $registrosPorPagina){
+        self::$total_pagina = ceil($total_registros / $registrosPorPagina);
+    }
     
      /**
     * A classe Paginacao tem o método estático paginar que:
     * Recebe por parâmetro:
     * @param mixed $paginaAtual a página atual;
     * @param mixed $registrosPorPagina o número de registros por pág;
-    * @param mixed $query a query principal;
+    * @param mixed $query a query principal sem o order by para contagem;
+    * @param mixed $sql_orderby a query principal com order by para retornar função OFFSET;
     * @param mixed $params os parâmetros da query principal;
     * @param mixed $url a $url;
     * @param mixed $filtros e os filtros que montam a url;
-    * É instanciado um objeto chamado dados_paginacao que seta com funções auxiliares o total de linhas retornadas pela query no atributo privado $total_registros
+    * É setado com funções auxiliares o total de linhas retornadas pela query no atributo privado $total_registros
     * e a quantidade de páginas disponíveis para navegação no atributo $total_pagina.
     * Caso o atributo $total_pagina tenha valor = 1, não existirá o <nav> para vários registros, do contrário, é montada com a função gerarPaginacao(), um menu de navegação.
+    * A função paginar retorna um array com valores que possuem:
+    * A query principal com a função de offset - 'concat_query';
+    * O HTML com os hrefs para paginação - 'paginacao';
+    * O total de registros para impressão na tela = 'total_de_registros';
+    * O offset que caracterizará a orderm das linhas - 'offset'.
     */
-    static function paginar($paginaAtual, $registrosPorPagina, $query, $params, $url, $filtros){
+    static function paginar($paginaAtual, $registrosPorPagina, $query, $sql_orderby, $params, $url, $filtros){
 
-        $dados_paginacao = new self();
-        $dados_paginacao->setTotalRegistros($dados_paginacao->queryTotaldeLinhas($query, $params));
-        $dados_paginacao->setTotalPaginaNavegacao($dados_paginacao->getTotalRegistros(), $registrosPorPagina);
+        self::$total_registros = self::queryTotaldeLinhas($query, $params);
+        self::setTotalPaginaNavegacao(self::$total_registros, $registrosPorPagina);
         $offset = ($paginaAtual - 1) * $registrosPorPagina;
 
-        $paginacao = ($dados_paginacao->getTotalPaginaNavegacao() > 1)? $dados_paginacao->gerarPaginacao($dados_paginacao->getTotalPaginaNavegacao(), $paginaAtual, $url, $filtros) : NULL;
+        $paginacao = (self::$total_pagina > 1)? self::gerarPaginacao(self::getTotalPaginaNavegacao(), $paginaAtual, $url, $filtros) : NULL;
 
         return array(
-            'concat_query' => $query . " OFFSET $offset ROWS FETCH NEXT $registrosPorPagina ROWS ONLY",
+            'concat_query' =>  "$sql_orderby OFFSET $offset ROWS FETCH NEXT $registrosPorPagina ROWS ONLY",
             'paginacao' => $paginacao,
+            'total_de_registros' => self::$total_registros,
+            'offset' => $offset
         );
     }
 
     /*Função auxiliar que conta e retorna a quantidade de linhas da query principal*/
-   public function queryTotaldeLinhas($query, $params){
-
-        function removerOrderBy($query) {
-            // Padrão para encontrar a cláusula ORDER BY em uma consulta
-            $padrao = '/\s+ORDER\s+BY\s+.+/i';
-            
-            // Remove a cláusula ORDER BY usando uma string vazia
-            $querySemOrderBy = preg_replace($padrao, '', $query);
-            
-            return $querySemOrderBy;
-        }
-
-        $queryPrincipal = removerOrderBy($query);
+    private static function queryTotaldeLinhas($query, $params){
 
         global $conn;
        
-        $query = " SELECT COUNT(*) AS total_registros FROM ( $queryPrincipal ) AS consulta";
+        $query = " SELECT COUNT(*) AS total_registros FROM ( $query ) AS consulta";
 
         $result = sqlsrv_query($conn, $query, $params, array('Scrollable' => SQLSRV_CURSOR_FORWARD)) or die("Falha ao consultar dados no banco de dados");
 
@@ -72,7 +67,7 @@ class Paginacao{
     }
 
     /*Função que retorna a o menu de paginção com os links corretos.*/
-    private function gerarPaginacao($total_pagina, $pagina, $url, $filtros){
+    private static function gerarPaginacao($total_pagina, $pagina, $url, $filtros){
         // $filtros_url = http_build_query($filtros);
 
         $anterior     = ($pagina > 1)? "{$url}?{$filtros}&pagina=".($pagina-1): "#";
