@@ -60,7 +60,13 @@ class Paginacao{
        
         $query = " SELECT COUNT(*) AS total_registros FROM ( $query ) AS consulta";
 
-        $result = sqlsrv_query($conn, $query, $params, array('Scrollable' => SQLSRV_CURSOR_FORWARD)) or die("Falha ao consultar dados no banco de dados");
+        $result = sqlsrv_query($conn, $query, $params, array('Scrollable' => SQLSRV_CURSOR_FORWARD));
+        if(!$result){
+            if( ($errors = sqlsrv_errors() ) != null) {
+                error_log("Paginacao@".__FUNCTION__.$errors[0]['message']);
+                return false;
+            }
+        }
 
         return sqlsrv_fetch_array($result, SQLSRV_FETCH_ASSOC)['total_registros'];
     
