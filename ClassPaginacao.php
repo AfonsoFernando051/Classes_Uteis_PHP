@@ -89,8 +89,12 @@ class Paginacao{
                         <ul class='pagination justify-content-center' >";
         if($pagina > 1){
             $anterior = ($pagina > 1)? "{$url}?{$filtros}&pagina=".($pagina-1): "#";
+            $primeira = ($pagina > 1)? "{$url}?{$filtros}&pagina=".(1): "#";
             $pagination .= "<li class='page-item'>
-                                <a class='page-link' href='{$anterior}'>Anterior</a>
+                                <a class='page-link' href='{$primeira}'>Primeira</a>
+                            </li>";
+            $pagination .= "<li class='page-item'>
+                                <a class='page-link' href='{$anterior}'>&laquo</a>
                             </li>";
         }
         for ($page = $firstPageToShow; $page <= $lastPageToShow; $page++) {
@@ -101,9 +105,13 @@ class Paginacao{
         }
         if ($page < $total_de_paginas_navegacao) {
             $proxima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($pagina+1): "#";
+            $proxima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($total_de_paginas_navegacao): "#";
             $pagination .= "<li class='page-item {$active}'>
-                                <a class='page-link' href='{$proxima}'>Próxima</a>
+                                <a class='page-link' href='{$proxima}'>&raquo;</a>
                             </li>";
+            $pagination .= "<li class='page-item {$active}'>
+                                <a class='page-link' href='{$proxima}'>Última</a>
+                            </li>";         
         }
             $pagination .= "
                 </ul>
