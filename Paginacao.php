@@ -79,27 +79,24 @@ class Paginacao{
         $firstPageToShow = max(1, $pagina - floor($maxPagesToShow / 2));
         $lastPageToShow = min($total_pagina, $firstPageToShow + $maxPagesToShow - 1);
         $firstPageToShow = max(1, $lastPageToShow - $maxPagesToShow + 1);
-
-        $anterior     = ($pagina > 1)? "{$url}?{$filtros}&pagina=".($pagina-1): "#";
-        $anterior_dis = ($pagina <= 1)? " disabled ": "";
-
         $pagination = "
-        <style>
-            ul.pagination li a {
-                text-decoration: none;
-                border-top: 1px solid #ddd;
-                border-bottom: 1px solid #ddd;
-                border-left: 1px solid #ddd;
-                border-right: 1px solid #ddd;
-            }
-        </style> 
+            <style>
+                ul.pagination li a {
+                    text-decoration: none;
+                    border-top: 1px solid #ddd;
+                    border-bottom: 1px solid #ddd;
+                    border-left: 1px solid #ddd;
+                    border-right: 1px solid #ddd;
+                }
+            </style> 
         ";
 
         $pagination .= "<nav aria-label='...' style='margin-bottom: 20px;'>
                         <ul class='pagination justify-content-center' >";
         if($pagina > 1){
+            $anterior = ($pagina > 1)? "{$url}?{$filtros}&pagina=".($pagina-1): "#";
             $pagination .= "<li class='page-item'>
-                                <a class='page-link' {$anterior_dis} href='{$anterior}'>Anterior</a>
+                                <a class='page-link' href='{$anterior}'>Anterior</a>
                             </li>";
         }
         for ($page = $firstPageToShow; $page <= $lastPageToShow; $page++) {
@@ -109,7 +106,7 @@ class Paginacao{
                             </li>";
         }
         if ($page < $total_pagina) {
-            $proxima     = ($total_pagina > $pagina)? "{$url}?{$filtros}&pagina=".($pagina+1): "#";
+            $proxima = ($total_pagina > $pagina)? "{$url}?{$filtros}&pagina=".($pagina+1): "#";
             $pagination .= "<li class='page-item {$active}'>
                                 <a class='page-link' href='{$proxima}'>Próxima</a>
                             </li>";
