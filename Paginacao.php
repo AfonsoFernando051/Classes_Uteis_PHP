@@ -74,29 +74,48 @@ class Paginacao{
 
     /*Função que retorna a o menu de paginção com os links corretos.*/
     private static function gerarPaginacao($total_pagina, $pagina, $url, $filtros){
-        // $filtros_url = http_build_query($filtros);
+
+        $maxPagesToShow = 5;
+        $firstPageToShow = max(1, $pagina - floor($maxPagesToShow / 2));
+        $lastPageToShow = min($total_pagina, $firstPageToShow + $maxPagesToShow - 1);
+        $firstPageToShow = max(1, $lastPageToShow - $maxPagesToShow + 1);
 
         $anterior     = ($pagina > 1)? "{$url}?{$filtros}&pagina=".($pagina-1): "#";
         $anterior_dis = ($pagina <= 1)? " disabled ": "";
-        $pagination = "<nav aria-label='...' style='margin-bottom: 20px;'>
-                        <ul class='pagination justify-content-center'>
-                            <li class='page-item {$anterior_dis}'>
-                                <a class='page-link' href='{$anterior}' tabindex='-1'>Anterior</a>
-                            </li> ";
-                            for ($i=1; $i <=$total_pagina; $i++) {
-                                $active  = ($i == $pagina)? 'active': "";
-                                $pagination .="
-                                    <li class='page-item {$active}'>
-                                        <a class='page-link' href='{$url}?{$filtros}&pagina={$i}'>{$i}</a>
-                                    </li>
-                                    ";
-                            }
+
+        $pagination = "
+        <style>
+            ul.pagination li a {
+                text-decoration: none;
+                border-top: 1px solid #ddd;
+                border-bottom: 1px solid #ddd;
+                border-left: 1px solid #ddd;
+                border-right: 1px solid #ddd;
+            }
+        </style> 
+        ";
+
+        $pagination .= "<nav aria-label='...' style='margin-bottom: 20px;'>
+                        <ul class='pagination justify-content-center' >";
+        if($pagina > 1){
+            $pagination .= "<li class='page-item'>
+                                <a class='page-link' {$anterior_dis} href='{$anterior}'>Anterior</a>
+                            </li>";
+        }
+        for ($page = $firstPageToShow; $page <= $lastPageToShow; $page++) {
+            $active  = ($page == $pagina)? 'active': "";
+            $pagination .= "<li class='page-item {$active}'>
+                                <a class='page-link' href='{$url}?{$filtros}&pagina={$page}'>{$page}</a>
+                            </li>";
+        }
+        if ($page < $total_pagina) {
             $proxima     = ($total_pagina > $pagina)? "{$url}?{$filtros}&pagina=".($pagina+1): "#";
-            $proxima_dis = ($total_pagina <= $pagina)? " disabled ": "";
-            $pagination .= "<li class='page-item {$proxima_dis}'>
-                            <a class='page-link' href='{$proxima}'>Próximo</a>
-                            </li>
-                        </ul>
+            $pagination .= "<li class='page-item {$active}'>
+                                <a class='page-link' href='{$proxima}'>Próxima</a>
+                            </li>";
+        }
+            $pagination .= "
+                </ul>
                     </nav>";
         return $pagination;
     }
