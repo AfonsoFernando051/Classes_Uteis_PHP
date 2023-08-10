@@ -105,12 +105,12 @@ class Paginacao{
         }
         if ($page < $total_de_paginas_navegacao) {
             $proxima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($pagina+1): "#";
-            $proxima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($total_de_paginas_navegacao): "#";
+            $ultima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($total_de_paginas_navegacao): "#";
             $pagination .= "<li class='page-item {$active}'>
                                 <a class='page-link' href='{$proxima}'>&raquo;</a>
                             </li>";
             $pagination .= "<li class='page-item {$active}'>
-                                <a class='page-link' href='{$proxima}'>Última</a>
+                                <a class='page-link' href='{$ultima}'>Última</a>
                             </li>";         
         }
             $pagination .= "
