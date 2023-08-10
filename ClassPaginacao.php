@@ -1,10 +1,8 @@
 <?php
 
 class Paginacao{
-
     private static $total_registros;
     private static $total_de_paginas_navegacao;
-  
     static function setTotalRegistros($total_registros){
         self::$total_registros = $total_registros;
     }
@@ -30,7 +28,7 @@ class Paginacao{
     static function paginar($paginaAtual, $registrosPorPagina, $query, $sql_orderby, $params){
         $url = $_SERVER['SCRIPT_NAME']; //Nome do arquivo que vêm na URL;
         $filtros = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY); //Parâmetros que vêm na URL;
-    
+       
         self::$total_registros = self::queryTotaldeLinhas($query, $params); // O atributo $total_registros recebe o total de registros da query;
         self::setTotalPaginaNavegacao(self::$total_registros, $registrosPorPagina); //O atributo $total_de_paginas_navegacao recebe a quantidade de páginas disponíveis para navegação.
         $offset = ($paginaAtual - 1) * $registrosPorPagina; // Offset são as linhas dos registros nas diferentes páginas.
@@ -88,6 +86,7 @@ class Paginacao{
         $pagination .= "<nav aria-label='...' style='margin-bottom: 20px;'>
                         <ul class='pagination justify-content-center' >";
         if($pagina > 1){
+            $filtros = self::removeParamsFiltro($filtros, $pagina);
             $anterior = ($pagina > 1)? "{$url}?{$filtros}&pagina=".($pagina-1): "#";
             $primeira = ($pagina > 1)? "{$url}?{$filtros}&pagina=".(1): "#";
             $pagination .= "<li class='page-item'>
@@ -98,12 +97,14 @@ class Paginacao{
                             </li>";
         }
         for ($page = $firstPageToShow; $page <= $lastPageToShow; $page++) {
+            $filtros = self::removeParamsFiltro($filtros, $pagina);
             $active  = ($page == $pagina)? 'active': "";
             $pagination .= "<li class='page-item {$active}'>
                                 <a class='page-link' href='{$url}?{$filtros}&pagina={$page}'>{$page}</a>
                             </li>";
         }
         if ($page < $total_de_paginas_navegacao) {
+            $filtros = self::removeParamsFiltro($filtros, $pagina);
             $proxima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($pagina+1): "#";
             $ultima = ($total_de_paginas_navegacao > $pagina)? "{$url}?{$filtros}&pagina=".($total_de_paginas_navegacao): "#";
             $pagination .= "<li class='page-item {$active}'>
@@ -119,4 +120,10 @@ class Paginacao{
         return $pagination;
     }
 
+    /*Método criado para remover as concatençãoes sem fim de &pagina=$pagina nos filtros passados na paginação.*/
+    private static function removeParamsFiltro($filtro, $pagina){
+        $substring = "&pagina=$pagina";
+        $filtro = str_replace($substring, '', $filtro);
+        return $filtro;
+    }
 }
