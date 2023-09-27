@@ -7,9 +7,9 @@ header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Ac
 header("Content-Type: application/json; charset=UTF-8");
 
 $db_host = 'localhost';
-$db_username = 'AfonsoFernando';
-$db_password = 'F3rn@nd0';
-$db_name = 'EducaDrive';
+$db_username = 'root';
+$db_password = 'root';
+$db_name = 'Database';
 
 try{
 
