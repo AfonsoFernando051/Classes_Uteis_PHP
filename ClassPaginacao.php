@@ -7,33 +7,18 @@ class Paginacao{
         self::$total_registros = $total_registros;
     }
     static function setTotalPaginaNavegacao($total_registros, $registrosPorPagina){
-        self::$total_de_paginas_navegacao = ceil($total_registros / $registrosPorPagina); // O total de páginas é calculado de acordo com o quociente do total de registros com a qtd de registros por página. 
+        self::$total_de_paginas_navegacao = ceil($total_registros / $registrosPorPagina);
     }
     
-     /**
-    * A classe Paginacao tem o método estático paginar que:
-    * Recebe por parâmetro:
-    * @param mixed $paginaAtual a página atual;
-    * @param mixed $registrosPorPagina o número de registros por pág;
-    * @param mixed $query a query principal sem o order by para contagem;
-    * @param mixed $sql_orderby a query principal com order by para retornar função OFFSET;
-    * @param mixed $params os parâmetros da query principal;
-
-    * A função paginar retorna um array com valores que possuem:
-    * A query principal com a função de offset - 'concat_query';
-    * O HTML com os hrefs para paginação - 'paginacao';
-    * O total de registros para impressão na tela = 'total_de_registros';
-    * O offset que caracterizará a orderm das linhas - 'offset'.
-    */
     static function paginar($paginaAtual, $registrosPorPagina, $query, $sql_orderby, $params){
-        $url = $_SERVER['SCRIPT_NAME']; //Nome do arquivo que vêm na URL;
-        $filtros = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY); //Parâmetros que vêm na URL;
+        $url = $_SERVER['SCRIPT_NAME'];
+        $filtros = parse_url($_SERVER['REQUEST_URI'], PHP_URL_QUERY);
        
-        self::$total_registros = self::queryTotaldeLinhas($query, $params); // O atributo $total_registros recebe o total de registros da query;
-        self::setTotalPaginaNavegacao(self::$total_registros, $registrosPorPagina); //O atributo $total_de_paginas_navegacao recebe a quantidade de páginas disponíveis para navegação.
-        $offset = ($paginaAtual - 1) * $registrosPorPagina; // Offset são as linhas dos registros nas diferentes páginas.
+        self::$total_registros = self::queryTotaldeLinhas($query, $params); 
+        self::setTotalPaginaNavegacao(self::$total_registros, $registrosPorPagina);
+        $offset = ($paginaAtual - 1) * $registrosPorPagina;
 
-        $paginacao = (self::$total_de_paginas_navegacao > 1)? self::gerarPaginacao(self::$total_de_paginas_navegacao, $paginaAtual, $url, $filtros) : NULL; //Função que retorna o HTML da paginação caso haja mais de uma página.
+        $paginacao = (self::$total_de_paginas_navegacao > 1)? self::gerarPaginacao(self::$total_de_paginas_navegacao, $paginaAtual, $url, $filtros) : NULL;
 
         return array(
             'concat_query' =>  "$sql_orderby OFFSET $offset ROWS FETCH NEXT $registrosPorPagina ROWS ONLY",
@@ -43,7 +28,6 @@ class Paginacao{
         );
     }
 
-    /*Função auxiliar que conta e retorna a quantidade de linhas da query principal*/
     private static function queryTotaldeLinhas($query, $params){
 
         global $conn;
@@ -62,7 +46,7 @@ class Paginacao{
     
     }
 
-    /*Função que retorna a o menu de paginção com os links corretos.
+    /*FunÃ§Ã£o que retorna a o menu de paginÃ§Ã£o com os links corretos.
     O CSS utiliza algumas classes do Bootstrap 4.3 em algumas etapas.
     */
     private static function gerarPaginacao($total_de_paginas_navegacao, $pagina, $url, $filtros){
@@ -111,7 +95,7 @@ class Paginacao{
                                 <a class='page-link' href='{$proxima}'>&raquo;</a>
                             </li>";
             $pagination .= "<li class='page-item {$active}'>
-                                <a class='page-link' href='{$ultima}'>Última</a>
+                                <a class='page-link' href='{$ultima}'>Ãšltima</a>
                             </li>";         
         }
             $pagination .= "
@@ -120,7 +104,6 @@ class Paginacao{
         return $pagination;
     }
 
-    /*Método criado para remover as concatençãoes sem fim de &pagina=$pagina nos filtros passados na paginação.*/
     private static function removeParamsFiltro($filtro, $pagina){
         $substring = "&pagina=$pagina";
         $filtro = str_replace($substring, '', $filtro);
